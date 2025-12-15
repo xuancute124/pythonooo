@@ -32,14 +32,37 @@ def index():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+        fullname = request.form["fullname"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        address = request.form["address"]
         username = request.form["username"]
         password = request.form["password"]
-        print(f"[REGISTER] Tạo tài khoản với username='{username}'")
+
+        print(f"[REGISTER] Tạo tài khoản: username='{username}', fullname='{fullname}', email='{email}'")
+
         conn = get_db()
         c = conn.cursor()
-        c.execute("INSERT INTO users VALUES (NULL, ?, ?)", (username, password))
-        conn.commit()
-        return redirect("/login")
+        try:
+            c.execute(
+                "INSERT INTO users (fullname, email, phone, address, username, password) VALUES (?, ?, ?, ?, ?, ?)",
+                (fullname, email, phone, address, username, password),
+            )
+            conn.commit()
+            return redirect("/login")
+        except sqlite3.IntegrityError:
+            # Username đã tồn tại -> hiện thông báo lỗi trên form
+            error = "Tên đăng nhập đã được sử dụng, vui lòng chọn tên khác."
+            print(f"[REGISTER] Lỗi: {error} username='{username}'")
+            return render_template(
+                "register.html",
+                error=error,
+                fullname=fullname,
+                email=email,
+                phone=phone,
+                address=address,
+                username=username,
+            )
     return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -92,6 +115,29 @@ def admin():
     c.execute("SELECT * FROM sanpham")
     products = c.fetchall()
     return render_template("admin.html", products=products)
+
+@app.route("/profile")
+def profile():
+    # Yêu cầu phải đăng nhập
+    if "user" not in session:
+        return redirect("/login")
+    username = session["user"]
+    return render_template("profile.html", username=username)
+
+@app.route("/settings")
+def settings():
+    # Yêu cầu phải đăng nhập
+    if "user" not in session:
+        return redirect("/login")
+    username = session["user"]
+    return render_template("settings.html", username=username)
+
+@app.route("/logout")
+def logout():
+    # Xóa thông tin đăng nhập và giỏ hàng rồi quay về trang chủ
+    session.pop("user", None)
+    session.pop("cart", None)
+    return redirect("/")
 
 if __name__ == "__main__":
     app.run(debug=True)

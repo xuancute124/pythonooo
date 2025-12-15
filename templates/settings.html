@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header text-center mb-4">
+            <div class="auth-icon-wrapper">
+                <i class="fas fa-cog"></i>
+            </div>
+            <h2 class="auth-title">Cài đặt tài khoản</h2>
+            <p class="auth-subtitle">Quản lý các thiết lập cho tài khoản <strong>{{ username }}</strong></p>
+        </div>
+
+        <!-- Nội dung demo. Bạn có thể thêm form đổi mật khẩu, đổi thông tin, v.v. -->
+        <div class="mb-4">
+            <p class="text-muted">
+                Đây là trang cài đặt mẫu. Bạn có thể thêm các chức năng như:
+            </p>
+            <ul class="text-muted">
+                <li>Đổi mật khẩu</li>
+                <li>Cập nhật thông tin cá nhân</li>
+                <li>Cấu hình thông báo, v.v.</li>
+            </ul>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="/profile" class="btn btn-outline-secondary">
+                <i class="fas fa-id-card me-2"></i>Trang cá nhân
+            </a>
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-store me-2"></i>Quay lại mua sắm
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

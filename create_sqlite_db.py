@@ -6,9 +6,15 @@ def main():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
 
+    # Tạo lại bảng users với nhiều thông tin hơn
+    c.execute('DROP TABLE IF EXISTS users')
     c.execute('''
-    CREATE TABLE IF NOT EXISTS users (
+    CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fullname TEXT,
+        email TEXT,
+        phone TEXT,
+        address TEXT,
         username TEXT UNIQUE,
         password TEXT
     )

@@ -30,11 +30,41 @@
                             <i class="fas fa-shopping-cart me-1"></i>Giỏ hàng
                         </a>
                     </li>
+
+                    {% if session.get('user') %}
+                    <!-- Đã đăng nhập: hiện username + menu dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <span>{{ session['user'] }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li>
+                                <a class="dropdown-item" href="/profile">
+                                    <i class="fas fa-id-card me-2"></i>Trang cá nhân
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/settings">
+                                    <i class="fas fa-cog me-2"></i>Cài đặt
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="/logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <!-- Chưa đăng nhập: hiện nút Đăng nhập -->
                     <li class="nav-item">
                         <a class="nav-link" href="/login">
                             <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
                         </a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

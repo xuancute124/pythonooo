@@ -65,6 +65,9 @@
                 <i class="fas fa-chevron-right action-arrow"></i>
             </a>
         </div>
+
+        {% if not session.get('user') %}
+        <!-- Chỉ hiện gợi ý Đăng nhập khi chưa đăng nhập -->
         <div class="col-md-6">
             <a href="/login" class="action-card login-action">
                 <div class="action-icon">
@@ -77,6 +80,7 @@
                 <i class="fas fa-chevron-right action-arrow"></i>
             </a>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
