@@ -1,11 +1,53 @@
 {% extends "base.html" %}
 {% block content %}
-<h3>Đăng nhập</h3>
-<form method="post">
-    <input name="username" class="form-control mb-2" placeholder="Tên đăng nhập">
-    <input name="password" type="password" class="form-control mb-2" placeholder="Mật khẩu">
-    <button class="btn btn-success">Đăng nhập</button>
-</form>
-<a href="/register">Chưa có tài khoản?</a>
-{% endblock %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header text-center mb-4">
+            <div class="auth-icon-wrapper">
+                <i class="fas fa-sign-in-alt"></i>
+            </div>
+            <h2 class="auth-title">Đăng nhập</h2>
+            <p class="auth-subtitle">Chào mừng bạn trở lại!</p>
+        </div>
 
+        <form method="post" class="auth-form">
+            <div class="form-group-custom mb-4">
+                <label class="form-label-custom">
+                    <i class="fas fa-user me-2"></i>Tên đăng nhập
+                </label>
+                <input 
+                    name="username" 
+                    type="text" 
+                    class="form-control-custom" 
+                    placeholder="Nhập tên đăng nhập"
+                    required
+                >
+            </div>
+
+            <div class="form-group-custom mb-4">
+                <label class="form-label-custom">
+                    <i class="fas fa-lock me-2"></i>Mật khẩu
+                </label>
+                <input 
+                    name="password" 
+                    type="password" 
+                    class="form-control-custom" 
+                    placeholder="Nhập mật khẩu"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn-auth-submit">
+                <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+            </button>
+        </form>
+
+        <div class="auth-footer text-center mt-4">
+            <p class="text-muted">
+                Chưa có tài khoản? 
+                <a href="/register" class="auth-link">Đăng ký ngay</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

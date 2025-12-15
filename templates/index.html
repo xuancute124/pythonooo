@@ -1,18 +1,82 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>👕 Cửa hàng quần áo</h2>
-
-<div class="row">
-{% for p in products %}
-    <div class="col-md-3 card p-3 m-2">
-        <h5>{{ p[1] }}</h5>
-        <p>{{ p[2] }} VNĐ</p>
-        <a href="/add/{{ p[0] }}" class="btn btn-primary">Thêm giỏ hàng</a>
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="hero-content text-center">
+        <h1 class="hero-title mb-3">
+            <i class="fas fa-tshirt me-3"></i>Chào mừng đến với Shop Quần Áo
+        </h1>
+        <p class="hero-subtitle">Khám phá bộ sưu tập thời trang mới nhất với giá cả hợp lý</p>
     </div>
-{% endfor %}
 </div>
 
-<a href="/cart">🛒 Xem giỏ hàng</a> |
-<a href="/login">Đăng nhập</a>
-{% endblock %}
+<!-- Products Section -->
+<div class="products-header mb-4">
+    <h2 class="section-title">
+        <i class="fas fa-store me-2"></i>Sản phẩm nổi bật
+    </h2>
+    <div class="section-divider"></div>
+</div>
 
+{% if products %}
+<div class="row g-4">
+    {% for p in products %}
+    <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="product-card">
+            <div class="product-image-wrapper">
+                <div class="product-image-placeholder">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                <div class="product-badge">Mới</div>
+            </div>
+            <div class="product-body">
+                <h5 class="product-title">{{ p[1] }}</h5>
+                <div class="product-price-wrapper">
+                    <span class="product-price">{{ p[2]|int }} VNĐ</span>
+                </div>
+<!--                <a href="/add/{{ p[0] }}" class="btn btn-add-cart">-->
+<!--                    <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ-->
+<!--                </a>-->
+                <a href="/add/{{ p[0] }}" class="btn btn-primary">Thêm giỏ hàng</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
+    <p class="text-muted">Chưa có sản phẩm nào</p>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="quick-actions mt-5">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <a href="/cart" class="action-card cart-action">
+                <div class="action-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="action-content">
+                    <h5>Xem giỏ hàng</h5>
+                    <p class="mb-0">Kiểm tra các sản phẩm đã thêm</p>
+                </div>
+                <i class="fas fa-chevron-right action-arrow"></i>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="/login" class="action-card login-action">
+                <div class="action-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="action-content">
+                    <h5>Đăng nhập</h5>
+                    <p class="mb-0">Đăng nhập để mua sắm tiện lợi hơn</p>
+                </div>
+                <i class="fas fa-chevron-right action-arrow"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

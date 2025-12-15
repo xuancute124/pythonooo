@@ -34,6 +34,7 @@ def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        print(f"[REGISTER] Tạo tài khoản với username='{username}'")
         conn = get_db()
         c = conn.cursor()
         c.execute("INSERT INTO users VALUES (NULL, ?, ?)", (username, password))
@@ -53,23 +54,35 @@ def login():
         if user:
             session["user"] = username
             session["cart"] = []
+            print(f"[LOGIN] Đăng nhập thành công với username='{username}'")
             return redirect("/")
+        else:
+            print(f"[LOGIN] Đăng nhập thất bại với username='{username}'")
     return render_template("login.html")
 
 @app.route("/add/<int:id>")
 def add_cart(id):
-    session.setdefault("cart", [])
-    session["cart"].append(id)
+    # Lấy giỏ hàng hiện tại từ session (nếu chưa có thì là list rỗng)
+    cart = session.get("cart", [])
+    cart.append(id)
+    # GÁN LẠI vào session để Flask nhận biết có thay đổi
+    session["cart"] = cart
+    print(f"[CART] Thêm sản phẩm id={id} vào giỏ. Cart hiện tại: {session['cart']}")
     return redirect("/cart")
 
 @app.route("/cart")
 def cart():
+    print(f"[CART] Xem giỏ hàng. Cart trong session: {session.get('cart')}")
     conn = get_db()
     c = conn.cursor()
     items = []
     for pid in session.get("cart", []):
         c.execute("SELECT * FROM sanpham WHERE id=?", (pid,))
-        items.append(c.fetchone())
+        row = c.fetchone()
+        # Nếu sản phẩm không tồn tại (fetchone() trả về None) thì bỏ qua,
+        # tránh lỗi "None has no element 2" trong template.
+        if row is not None:
+            items.append(row)
     return render_template("cart.html", items=items)
 
 @app.route("/admin")

@@ -1,14 +1,75 @@
 {% extends "base.html" %}
 {% block content %}
-<h3>Giỏ hàng</h3>
+<div class="cart-header mb-4">
+    <h2 class="section-title">
+        <i class="fas fa-shopping-cart me-2"></i>Giỏ hàng của bạn
+    </h2>
+    <div class="section-divider"></div>
+</div>
+
 {% if items %}
-<ul class="list-group">
-{% for it in items %}
-    <li class="list-group-item">{{ it[1] }} - {{ it[2] }} VNĐ</li>
-{% endfor %}
-</ul>
+<div class="cart-container">
+    <div class="cart-items">
+        {% for it in items %}
+        <div class="cart-item">
+            <div class="cart-item-image">
+                <div class="cart-image-placeholder">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+            </div>
+            <div class="cart-item-info">
+                <h5 class="cart-item-name">{{ it[1] }}</h5>
+                <p class="cart-item-price">{{ it[2]|int }} VNĐ</p>
+            </div>
+            <div class="cart-item-actions">
+                <span class="cart-item-badge">
+                    <i class="fas fa-check-circle me-1"></i>Đã thêm
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="cart-summary">
+        <div class="summary-card">
+            <h5 class="summary-title mb-4">
+                <i class="fas fa-receipt me-2"></i>Tổng kết đơn hàng
+            </h5>
+            
+            <div class="summary-row">
+                <span>Số lượng sản phẩm:</span>
+                <strong>{{ items|length }}</strong>
+            </div>
+            
+            {% set ns = namespace(total=0) %}
+            {% for it in items %}
+                {% set ns.total = ns.total + it[2] %}
+            {% endfor %}
+            <div class="summary-row summary-total">
+                <span>Tổng tiền:</span>
+                <strong class="total-price">{{ ns.total|int }} VNĐ</strong>
+            </div>
+
+            <button class="btn-checkout mt-4">
+                <i class="fas fa-credit-card me-2"></i>Thanh toán
+            </button>
+
+            <a href="/" class="btn-continue-shopping mt-3">
+                <i class="fas fa-arrow-left me-2"></i>Tiếp tục mua sắm
+            </a>
+        </div>
+    </div>
+</div>
 {% else %}
-<p>Giỏ hàng trống</p>
+<div class="empty-cart">
+    <div class="empty-cart-icon">
+        <i class="fas fa-shopping-cart"></i>
+    </div>
+    <h3 class="empty-cart-title">Giỏ hàng trống</h3>
+    <p class="empty-cart-text">Bạn chưa thêm sản phẩm nào vào giỏ hàng</p>
+    <a href="/" class="btn-back-to-shop">
+        <i class="fas fa-store me-2"></i>Khám phá sản phẩm
+    </a>
+</div>
 {% endif %}
 {% endblock %}
-
