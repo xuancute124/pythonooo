@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="product-card">
+            <div class="product-image-wrapper">
+                <div class="product-image-placeholder">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                {% if category_name %}
+                <div class="product-badge">{{ category_name }}</div>
+                {% else %}
+                <div class="product-badge">New drop</div>
+                {% endif %}
+            </div>
+            <div class="product-body">
+                <h2 class="product-title">{{ product['ten'] }}</h2>
+                <div class="product-price-wrapper mb-3">
+                    <span class="product-price">{{ product['gia']|int }} VNĐ</span>
+                </div>
+                <div class="mb-3 text-muted small">
+                    <div class="mb-1">
+                        <strong>Số lượng còn:</strong> {{ product['quantity'] }}
+                    </div>
+                    <div class="mb-1">
+                        <strong>Size:</strong>
+                        {% if product['size'] %}
+                            {% for s in product['size'].split(',') %}
+                                <span class="badge bg-light text-dark me-1">{{ s }}</span>
+                            {% endfor %}
+                        {% else %}
+                            Không có thông tin
+                        {% endif %}
+                    </div>
+                    <div class="mb-1">
+                        <strong>Màu sắc:</strong> {{ product['color'] or 'Không có thông tin' }}
+                    </div>
+                    <div class="mb-1">
+                        <strong>Loại sản phẩm:</strong> {{ product['product_type'] or 'Không có thông tin' }}
+                    </div>
+                    <div class="mb-1">
+                        <strong>Ngày tạo:</strong> {{ product['created_at'] or '—' }}
+                    </div>
+                </div>
+                <p class="text-muted mb-4">
+                    {{ product['description'] }}
+                </p>
+
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    <a href="/add/{{ product['id'] }}" class="btn-add-cart flex-fill text-center">
+                        <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
+                    </a>
+                    <a href="#payment" class="btn btn-outline-primary flex-fill">
+                        <i class="fas fa-bolt me-2"></i>Mua ngay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6" id="payment">
+        <div class="auth-card">
+            <div class="auth-header text-center mb-4">
+                <div class="auth-icon-wrapper">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h2 class="auth-title">Thanh toán banking</h2>
+                <p class="auth-subtitle">
+                    Điền thông tin thẻ ngân hàng để hoàn tất đơn hàng.
+                </p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            {% if success %}
+            <div class="alert alert-success" role="alert">
+                {{ success }}
+            </div>
+            {% endif %}
+
+            <form method="post" class="auth-form">
+                <input type="hidden" name="action" value="buy">
+
+                <div class="form-group-custom mb-3">
+                    <label class="form-label-custom">
+                        <i class="fas fa-user me-2"></i>Tên chủ thẻ
+                    </label>
+                    <input
+                        type="text"
+                        name="card_name"
+                        class="form-control-custom"
+                        placeholder="Nhập tên in trên thẻ"
+                        required
+                    >
+                </div>
+
+                <div class="form-group-custom mb-3">
+                    <label class="form-label-custom">
+                        <i class="fas fa-credit-card me-2"></i>Số thẻ
+                    </label>
+                    <input
+                        type="text"
+                        name="card_number"
+                        class="form-control-custom"
+                        placeholder="Ví dụ: 4111 1111 1111 1111"
+                        required
+                    >
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group-custom mb-3">
+                            <label class="form-label-custom">
+                                <i class="fas fa-calendar me-2"></i>Ngày hết hạn
+                            </label>
+                            <input
+                                type="text"
+                                name="expiry_date"
+                                class="form-control-custom"
+                                placeholder="MM/YY"
+                                required
+                            >
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group-custom mb-3">
+                            <label class="form-label-custom">
+                                <i class="fas fa-shield-alt me-2"></i>CCV
+                            </label>
+                            <input
+                                type="password"
+                                name="ccv"
+                                class="form-control-custom"
+                                placeholder="3 số phía sau thẻ"
+                                required
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth-submit">
+                    <i class="fas fa-lock me-2"></i>Thanh toán an toàn
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

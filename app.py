@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, g, current_app
 import sqlite3
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -25,9 +26,60 @@ app.teardown_appcontext(close_db)
 def index():
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT * FROM sanpham")
+    # Lọc theo category nếu có tham số ?category=
+    selected_category = request.args.get("category", type=int)
+
+    # Lọc theo khoảng giá: nhận nhiều giá trị từ checkbox, ví dụ: price=100-200
+    selected_price_ranges = request.args.getlist("price")
+
+    where_clauses = []
+    params = []
+
+    if selected_category:
+        where_clauses.append("category_id = ?")
+        params.append(selected_category)
+
+    # Ánh xạ mã khoảng giá -> (min, max)
+    price_map = {
+        "0-100": (0, 100000),
+        "100-200": (100000, 200000),
+        "200-400": (200000, 400000),
+        "400+": (400000, None),
+    }
+
+    price_conditions = []
+    for code in selected_price_ranges:
+        if code not in price_map:
+            continue
+        min_price, max_price = price_map[code]
+        if max_price is None:
+            price_conditions.append("gia >= ?")
+            params.append(min_price)
+        else:
+            price_conditions.append("gia BETWEEN ? AND ?")
+            params.extend([min_price, max_price])
+
+    if price_conditions:
+        where_clauses.append("(" + " OR ".join(price_conditions) + ")")
+
+    query = "SELECT * FROM sanpham"
+    if where_clauses:
+        query += " WHERE " + " AND ".join(where_clauses)
+
+    c.execute(query, params)
     products = c.fetchall()
-    return render_template("index.html", products=products)
+
+    # Lấy danh sách category để hiển thị bộ lọc
+    c.execute("SELECT * FROM categories")
+    categories = c.fetchall()
+
+    return render_template(
+        "index.html",
+        products=products,
+        categories=categories,
+        selected_category=selected_category,
+        selected_price_ranges=selected_price_ranges,
+    )
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -107,6 +159,68 @@ def cart():
         if row is not None:
             items.append(row)
     return render_template("cart.html", items=items)
+
+
+@app.route("/product/<int:product_id>", methods=["GET", "POST"])
+def product_detail(product_id):
+    conn = get_db()
+    c = conn.cursor()
+
+    # Lấy thông tin sản phẩm
+    c.execute("SELECT * FROM sanpham WHERE id=?", (product_id,))
+    product = c.fetchone()
+    if product is None:
+        return "Sản phẩm không tồn tại", 404
+
+    # Lấy tên category (loại sản phẩm) nếu có
+    category_name = None
+    if product["category_id"]:
+        c.execute("SELECT name FROM categories WHERE id=?", (product["category_id"],))
+        row_cat = c.fetchone()
+        if row_cat:
+            category_name = row_cat["name"]
+
+    error = None
+    success = None
+
+    if request.method == "POST" and request.form.get("action") == "buy":
+        card_name = request.form.get("card_name", "").strip()
+        card_number = request.form.get("card_number", "").strip()
+        expiry_date = request.form.get("expiry_date", "").strip()
+        ccv = request.form.get("ccv", "").strip()
+
+        # Validate đơn giản: không cho phép field rỗng
+        if not card_name or not card_number or not expiry_date or not ccv:
+            error = "Vui lòng điền đầy đủ thông tin thẻ ngân hàng."
+        else:
+            # Xác định user_id nếu đã đăng nhập
+            user_id = None
+            if "user" in session:
+                c.execute("SELECT id FROM users WHERE username=?", (session["user"],))
+                user_row = c.fetchone()
+                if user_row:
+                    user_id = user_row["id"]
+
+            type_pay = "banking"
+            created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            c.execute(
+                """
+                INSERT INTO payment_methods (user_id, type_pay, card_name, card_number, expiry_date, ccv, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (user_id, type_pay, card_name, card_number, expiry_date, ccv, created_at),
+            )
+            conn.commit()
+            success = "Thanh toán thành công! Cảm ơn bạn đã mua hàng."
+
+    return render_template(
+        "product_detail.html",
+        product=product,
+        category_name=category_name,
+        error=error,
+        success=success,
+    )
 
 @app.route("/admin")
 def admin():

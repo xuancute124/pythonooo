@@ -2,42 +2,176 @@
 {% block content %}
 <!-- Hero Section -->
 <div class="hero-section mb-5">
-    <div class="hero-content text-center">
-        <h1 class="hero-title mb-3">
-            <i class="fas fa-tshirt me-3"></i>Chào mừng đến với Shop Quần Áo
-        </h1>
-        <p class="hero-subtitle">Khám phá bộ sưu tập thời trang mới nhất với giá cả hợp lý</p>
+    <div class="hero-content">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7 text-center text-lg-start">
+                <div class="hero-pill mb-3 d-inline-flex align-items-center">
+                    <span class="hero-pill-dot"></span>
+                    <span class="hero-pill-text">New season • Street style • Daily outfit</span>
+                </div>
+                <h1 class="hero-title mb-3">
+                    <i class="fas fa-bolt me-2"></i>Upgrade phong cách mỗi ngày
+                </h1>
+                <p class="hero-subtitle mb-4">
+                    Mix &amp; match cực nhanh với những item basic nhưng đầy cá tính.
+                    Ưu đãi độc quyền cho thành viên mới trong hôm nay.
+                </p>
+                <div class="hero-cta-group d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                    <a href="#products" class="btn hero-btn-primary">
+                        <i class="fas fa-fire me-2"></i>Khám phá sản phẩm hot
+                    </a>
+                    <a href="/cart" class="btn hero-btn-secondary">
+                        <i class="fas fa-shopping-bag me-2"></i>Xem giỏ hàng
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="hero-side-card">
+                    <div class="hero-side-badge">
+                        <i class="fas fa-star me-1"></i>Trending now
+                    </div>
+                    <ul class="hero-side-list list-unstyled mb-0">
+                        <li class="hero-side-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="hero-side-label">Basic T-shirt</span>
+                                <small class="d-block text-muted">Đơn giản • Dễ mix • Cực cháy</small>
+                            </div>
+                            <span class="hero-side-price">150K</span>
+                        </li>
+                        <li class="hero-side-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="hero-side-label">Jeans slim-fit</span>
+                                <small class="d-block text-muted">Form đẹp • Ít nhăn</small>
+                            </div>
+                            <span class="hero-side-price">330K</span>
+                        </li>
+                        <li class="hero-side-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="hero-side-label">Áo khoác daily</span>
+                                <small class="d-block text-muted">Đi học • Đi chơi ok luôn</small>
+                            </div>
+                            <span class="hero-side-price">450K</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Products Section -->
 <div class="products-header mb-4">
-    <h2 class="section-title">
-        <i class="fas fa-store me-2"></i>Sản phẩm nổi bật
-    </h2>
-    <div class="section-divider"></div>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h2 class="section-title mb-1 mb-md-0">
+                <i class="fas fa-store me-2"></i>Sản phẩm nổi bật
+            </h2>
+            <div class="section-divider d-none d-md-block"></div>
+        </div>
+
+        {% if categories %}
+        <!-- Bộ lọc danh mục + khoảng giá -->
+        <form method="get" class="d-flex flex-column flex-lg-row align-items-lg-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <label class="text-muted mb-0">
+                    <i class="fas fa-filter me-2"></i>Lọc theo danh mục:
+                </label>
+                <select name="category" class="form-select form-select-sm" style="min-width: 180px;">
+                    <option value="">Tất cả sản phẩm</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat['id'] }}"
+                            {% if selected_category == cat['id'] %}selected{% endif %}>
+                            {{ cat['name'] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Lọc theo giá -->
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="text-muted small">Giá:</span>
+                <div class="form-check form-check-inline small">
+                    <input class="form-check-input" type="checkbox" name="price" id="price-0-100"
+                           value="0-100"
+                           {% if '0-100' in selected_price_ranges %}checked{% endif %}>
+                    <label class="form-check-label" for="price-0-100">
+                        &lt; 100k
+                    </label>
+                </div>
+                <div class="form-check form-check-inline small">
+                    <input class="form-check-input" type="checkbox" name="price" id="price-100-200"
+                           value="100-200"
+                           {% if '100-200' in selected_price_ranges %}checked{% endif %}>
+                    <label class="form-check-label" for="price-100-200">
+                        100k - 200k
+                    </label>
+                </div>
+                <div class="form-check form-check-inline small">
+                    <input class="form-check-input" type="checkbox" name="price" id="price-200-400"
+                           value="200-400"
+                           {% if '200-400' in selected_price_ranges %}checked{% endif %}>
+                    <label class="form-check-label" for="price-200-400">
+                        200k - 400k
+                    </label>
+                </div>
+                <div class="form-check form-check-inline small">
+                    <input class="form-check-input" type="checkbox" name="price" id="price-400-plus"
+                           value="400+"
+                           {% if '400+' in selected_price_ranges %}checked{% endif %}>
+                    <label class="form-check-label" for="price-400-plus">
+                        &gt; 400k
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-sm btn-outline-light">
+                    Áp dụng
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
 </div>
 
 {% if products %}
-<div class="row g-4">
+<div id="products" class="row g-4">
     {% for p in products %}
     <div class="col-lg-3 col-md-4 col-sm-6">
         <div class="product-card">
-            <div class="product-image-wrapper">
-                <div class="product-image-placeholder">
-                    <i class="fas fa-tshirt"></i>
+            <a href="/product/{{ p[0] }}" class="text-decoration-none text-reset">
+                <div class="product-image-wrapper">
+                    <div class="product-image-placeholder">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <div class="product-badge">New drop</div>
                 </div>
-                <div class="product-badge">Mới</div>
-            </div>
+            </a>
             <div class="product-body">
-                <h5 class="product-title">{{ p[1] }}</h5>
+                <h5 class="product-title">
+                    <a href="/product/{{ p[0] }}" class="text-decoration-none text-reset">
+                        {{ p[1] }}
+                    </a>
+                </h5>
                 <div class="product-price-wrapper">
                     <span class="product-price">{{ p[2]|int }} VNĐ</span>
                 </div>
-<!--                <a href="/add/{{ p[0] }}" class="btn btn-add-cart">-->
-<!--                    <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ-->
-<!--                </a>-->
-                <a href="/add/{{ p[0] }}" class="btn btn-primary">Thêm giỏ hàng</a>
+                <div class="product-meta-row d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-light text-muted px-2 py-1">
+                        <i class="fas fa-truck-fast me-1"></i>Ship nhanh
+                    </span>
+                    <span class="product-tag text-muted small">
+                        <i class="fas fa-heart me-1 text-danger"></i>Best choice
+                    </span>
+                </div>
+                <div class="d-flex flex-column gap-2">
+                    <a href="/add/{{ p[0] }}" class="btn-add-cart text-center">
+                        <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
+                    </a>
+                    <a href="/product/{{ p[0] }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>Xem chi tiết
+                    </a>
+                </div>
             </div>
         </div>
     </div>
