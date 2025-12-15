@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="admin-header mb-4">
+    <h2 class="section-title">
+        {% if mode == 'edit' %}
+        <i class="fas fa-edit me-2"></i>Sửa sản phẩm
+        {% else %}
+        <i class="fas fa-plus me-2"></i>Thêm sản phẩm mới
+        {% endif %}
+    </h2>
+    <div class="section-divider"></div>
+</div>
+
+<div class="admin-container">
+    <div class="auth-card">
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group-custom mb-3">
+                        <label class="form-label-custom">
+                            <i class="fas fa-tag me-2"></i>Tên sản phẩm
+                        </label>
+                        <input
+                            type="text"
+                            name="ten"
+                            class="form-control-custom"
+                            value="{{ product['ten'] if product else '' }}"
+                            required
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group-custom mb-3">
+                        <label class="form-label-custom">
+                            <i class="fas fa-money-bill-wave me-2"></i>Giá (VNĐ)
+                        </label>
+                        <input
+                            type="number"
+                            name="gia"
+                            class="form-control-custom"
+                            value="{{ product['gia'] if product else '' }}"
+                            min="0"
+                            required
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group-custom mb-3">
+                        <label class="form-label-custom">
+                            <i class="fas fa-boxes me-2"></i>Số lượng tồn
+                        </label>
+                        <input
+                            type="number"
+                            name="quantity"
+                            class="form-control-custom"
+                            value="{{ product['quantity'] if product else '' }}"
+                            min="0"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group-custom mb-3">
+                        <label class="form-label-custom">
+                            <i class="fas fa-ruler-horizontal me-2"></i>Size (ví dụ: M,L,XL,XXL)
+                        </label>
+                        <input
+                            type="text"
+                            name="size"
+                            class="form-control-custom"
+                            value="{{ product['size'] if product else 'M,L,XL,XXL' }}"
+                        >
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group-custom mb-3">
+                        <label class="form-label-custom">
+                            <i class="fas fa-palette me-2"></i>Màu sắc (ví dụ: Đen,Trắng,Xanh)
+                        </label>
+                        <input
+                            type="text"
+                            name="color"
+                            class="form-control-custom"
+                            value="{{ product['color'] if product else '' }}"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group-custom mb-3">
+                        <label class="form-label-custom">
+                            <i class="fas fa-layer-group me-2"></i>Danh mục
+                        </label>
+                        <select name="category_id" class="form-control-custom">
+                            <option value="">-- Chọn danh mục --</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat['id'] }}"
+                                    {% if product and product['category_id'] == cat['id'] %}selected{% endif %}>
+                                    {{ cat['name'] }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group-custom mb-3">
+                        <label class="form-label-custom">
+                            <i class="fas fa-tags me-2"></i>Loại chi tiết (product type)
+                        </label>
+                        <input
+                            type="text"
+                            name="product_type"
+                            class="form-control-custom"
+                            value="{{ product['product_type'] if product else '' }}"
+                            placeholder="Ví dụ: T-shirt / Basic, Jeans / Slim-fit"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group-custom mb-3">
+                <label class="form-label-custom">
+                    <i class="fas fa-align-left me-2"></i>Mô tả sản phẩm
+                </label>
+                <textarea
+                    name="description"
+                    rows="4"
+                    class="form-control-custom"
+                    placeholder="Nhập mô tả ngắn về chất vải, form dáng, phong cách sử dụng..."
+                >{{ product['description'] if product else '' }}</textarea>
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
+                <a href="/admin" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    {% if mode == 'edit' %}
+                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                    {% else %}
+                    <i class="fas fa-plus me-2"></i>Thêm sản phẩm
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

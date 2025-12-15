@@ -417,7 +417,7 @@ body {
 .auth-container {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 60vh;
     padding: 2rem 0;
 }
@@ -428,8 +428,34 @@ body {
     padding: 3rem;
     box-shadow: var(--shadow-xl);
     width: 100%;
-    max-width: 450px;
+    max-width: 100%;
     border: 1px solid var(--border-color);
+}
+
+/* Settings / Profile card style */
+.settings-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.75rem 1.5rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.settings-photo-preview {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.8rem;
+}
+
+.settings-divider {
+    border-color: var(--border-color);
+    opacity: 1;
 }
 
 .auth-header {

@@ -31,6 +31,14 @@
                         </a>
                     </li>
 
+                    {% if session.get('role') == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">
+                            <i class="fas fa-tools me-1"></i>Admin
+                        </a>
+                    </li>
+                    {% endif %}
+
                     {% if session.get('user') %}
                     <!-- Đã đăng nhập: hiện username + menu dropdown -->
                     <li class="nav-item dropdown">

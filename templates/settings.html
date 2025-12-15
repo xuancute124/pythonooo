@@ -7,31 +7,234 @@
                 <i class="fas fa-cog"></i>
             </div>
             <h2 class="auth-title">Cài đặt tài khoản</h2>
-            <p class="auth-subtitle">Quản lý các thiết lập cho tài khoản <strong>{{ username }}</strong></p>
-        </div>
-
-        <!-- Nội dung demo. Bạn có thể thêm form đổi mật khẩu, đổi thông tin, v.v. -->
-        <div class="mb-4">
-            <p class="text-muted">
-                Đây là trang cài đặt mẫu. Bạn có thể thêm các chức năng như:
+            <p class="auth-subtitle">
+                Quản lý thông tin cá nhân và bảo mật cho tài khoản <strong>{{ user['username'] }}</strong>
             </p>
-            <ul class="text-muted">
-                <li>Đổi mật khẩu</li>
-                <li>Cập nhật thông tin cá nhân</li>
-                <li>Cấu hình thông báo, v.v.</li>
-            </ul>
         </div>
 
-        <div class="d-flex justify-content-between">
-            <a href="/profile" class="btn btn-outline-secondary">
-                <i class="fas fa-id-card me-2"></i>Trang cá nhân
-            </a>
-            <a href="/" class="btn btn-primary">
-                <i class="fas fa-store me-2"></i>Quay lại mua sắm
+        <!-- Tabs ngang cho 2 phần: thông tin cá nhân & đổi mật khẩu -->
+        <ul class="nav nav-tabs mb-4" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-pane"
+                        type="button" role="tab" aria-controls="profile-pane" aria-selected="true">
+                    <i class="fas fa-user-edit me-2"></i>Thông tin người dùng
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-pane"
+                        type="button" role="tab" aria-controls="password-pane" aria-selected="false">
+                    <i class="fas fa-lock me-2"></i>Cài đặt mật khẩu
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Tab 1: Thông tin cá nhân -->
+            <div class="tab-pane fade show active" id="profile-pane" role="tabpanel" aria-labelledby="profile-tab">
+                <div class="settings-card">
+                    {% if profile_success %}
+                    <div class="alert alert-success" role="alert">
+                        {{ profile_success }}
+                    </div>
+                    {% endif %}
+                    {% if profile_error %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ profile_error }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Khu vực ảnh đại diện + nút Upload giống layout mẫu -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="settings-photo-preview me-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Ảnh đại diện</h6>
+                            <small class="text-muted d-block">Chấp nhận file .png, .jpg, nhỏ hơn 1MB</small>
+                            <label class="btn btn-sm btn-outline-primary mt-2 mb-0">
+                                <i class="fas fa-upload me-1"></i>Upload
+                                <input type="file" name="avatar" class="d-none">
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr class="settings-divider">
+
+                    <form method="post" class="auth-form mt-3">
+                        <input type="hidden" name="action" value="update_profile">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group-custom mb-3">
+                                    <label class="form-label-custom">
+                                        <i class="fas fa-id-card me-2"></i>Họ và tên
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="fullname"
+                                        class="form-control-custom"
+                                        value="{{ user['fullname'] or '' }}"
+                                        placeholder="Nhập họ và tên"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-custom mb-3">
+                                    <label class="form-label-custom">
+                                        <i class="fas fa-user me-2"></i>Tên đăng nhập
+                                    </label>
+                                    <input
+                                        type="text"
+                                        class="form-control-custom"
+                                        value="{{ user['username'] }}"
+                                        disabled
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group-custom mb-3">
+                                    <label class="form-label-custom">
+                                        <i class="fas fa-envelope me-2"></i>Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        class="form-control-custom"
+                                        value="{{ user['email'] or '' }}"
+                                        placeholder="Nhập email"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-custom mb-3">
+                                    <label class="form-label-custom">
+                                        <i class="fas fa-phone me-2"></i>Số điện thoại
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="phone"
+                                        class="form-control-custom"
+                                        value="{{ user['phone'] or '' }}"
+                                        placeholder="Nhập số điện thoại"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group-custom mb-3">
+                            <label class="form-label-custom">
+                                <i class="fas fa-map-marker-alt me-2"></i>Địa chỉ
+                            </label>
+                            <input
+                                type="text"
+                                name="address"
+                                class="form-control-custom"
+                                value="{{ user['address'] or '' }}"
+                                placeholder="Nhập địa chỉ"
+                                required
+                            >
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <a href="/profile" class="btn btn-light">
+                                Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Lưu thay đổi
+                            </button>
+                        </div>
+
+                        <hr class="settings-divider mt-4">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Vô hiệu hóa tài khoản</h6>
+                                <small class="text-muted">
+                                    Thao tác này sẽ khóa tài khoản của bạn (demo, chưa xử lý backend).
+                                </small>
+                            </div>
+                            <button type="button" class="btn btn-outline-danger btn-sm">
+                                Deactivate
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab 2: Đổi mật khẩu -->
+            <div class="tab-pane fade" id="password-pane" role="tabpanel" aria-labelledby="password-tab">
+                {% if password_success %}
+                <div class="alert alert-success" role="alert">
+                    {{ password_success }}
+                </div>
+                {% endif %}
+                {% if password_error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ password_error }}
+                </div>
+                {% endif %}
+
+                <form method="post" class="auth-form mt-3">
+                    <input type="hidden" name="action" value="change_password">
+
+                    <div class="form-group-custom mb-3">
+                        <label class="form-label-custom">
+                            <i class="fas fa-key me-2"></i>Mật khẩu hiện tại
+                        </label>
+                        <input
+                            type="password"
+                            name="current_password"
+                            class="form-control-custom"
+                            placeholder="Nhập mật khẩu hiện tại"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group-custom mb-3">
+                        <label class="form-label-custom">
+                            <i class="fas fa-lock me-2"></i>Mật khẩu mới
+                        </label>
+                        <input
+                            type="password"
+                            name="new_password"
+                            class="form-control-custom"
+                            placeholder="Nhập mật khẩu mới"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group-custom mb-4">
+                        <label class="form-label-custom">
+                            <i class="fas fa-check-double me-2"></i>Nhập lại mật khẩu mới
+                        </label>
+                        <input
+                            type="password"
+                            name="confirm_password"
+                            class="form-control-custom"
+                            placeholder="Nhập lại mật khẩu mới"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-auth-submit">
+                        <i class="fas fa-sync-alt me-2"></i>Đổi mật khẩu
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="auth-footer text-center mt-4">
+            <a href="/profile" class="btn btn-link">
+                <i class="fas fa-id-card me-2"></i>Quay lại trang cá nhân
             </a>
         </div>
     </div>
 </div>
 {% endblock %}
-
 

@@ -18,6 +18,11 @@
                 <p class="stat-label">Tổng sản phẩm</p>
             </div>
         </div>
+        <div class="ms-auto d-flex align-items-center">
+            <a href="/admin/product/new" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Thêm sản phẩm
+            </a>
+        </div>
     </div>
 
     <div class="admin-table-wrapper">
@@ -41,6 +46,9 @@
                         <th scope="col">
                             <i class="fas fa-money-bill-wave me-2"></i>Giá (VNĐ)
                         </th>
+                        <th scope="col">
+                            <i class="fas fa-layer-group me-2"></i>Danh mục
+                        </th>
                         <th scope="col" class="text-center">
                             <i class="fas fa-tasks me-2"></i>Thao tác
                         </th>
@@ -49,13 +57,19 @@
                 <tbody>
                     {% for p in products %}
                     <tr>
-                        <td class="fw-bold text-primary">#{{ p[0] }}</td>
-                        <td>{{ p[1] }}</td>
-                        <td class="fw-bold">{{ p[2]|int }} VNĐ</td>
+                        <td class="fw-bold text-primary">#{{ p['id'] }}</td>
+                        <td>{{ p['ten'] }}</td>
+                        <td class="fw-bold">{{ p['gia']|int }} VNĐ</td>
+                        <td>{{ categories.get(p['category_id']) or '—' }}</td>
                         <td class="text-center">
-                            <span class="badge bg-success">
-                                <i class="fas fa-check me-1"></i>Hoạt động
-                            </span>
+                            <a href="/admin/product/{{ p['id'] }}/edit" class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="post" action="/admin/product/{{ p['id'] }}/delete" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}

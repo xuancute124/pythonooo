@@ -6,7 +6,7 @@ def main():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
 
-    # Tạo lại bảng users với nhiều thông tin hơn
+    # Tạo lại bảng users với nhiều thông tin hơn và cột role
     c.execute('DROP TABLE IF EXISTS users')
     c.execute('''
     CREATE TABLE users (
@@ -16,7 +16,8 @@ def main():
         phone TEXT,
         address TEXT,
         username TEXT UNIQUE,
-        password TEXT
+        password TEXT,
+        role TEXT DEFAULT 'user'   -- 'admin' hoặc 'user'
     )
     ''')
 
@@ -125,6 +126,27 @@ def main():
         FOREIGN KEY (user_id) REFERENCES users(id)
     )
     ''')
+
+    # Bảng lưu lịch sử mua hàng (purchases)
+    c.execute('DROP TABLE IF EXISTS purchases')
+    c.execute('''
+    CREATE TABLE purchases (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,       -- người mua (có thể null nếu mua không đăng nhập)
+        product_id INTEGER,    -- sản phẩm đã mua
+        quantity INTEGER,      -- số lượng (mặc định 1 với "Mua ngay")
+        created_at TEXT,       -- thời gian mua
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (product_id) REFERENCES sanpham(id)
+    )
+    ''')
+
+    # Tạo một tài khoản admin mẫu (username: admin / password: admin)
+    c.execute(
+        "INSERT INTO users (fullname, email, phone, address, username, password, role) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ("Quản trị viên", "admin@example.com", "0123456789", "Hà Nội", "admin", "c", "admin"),
+    )
 
     conn.commit()
     conn.close()

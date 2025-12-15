@@ -96,9 +96,10 @@ def register():
         conn = get_db()
         c = conn.cursor()
         try:
+            # Mặc định role là 'user' cho tài khoản đăng ký mới
             c.execute(
-                "INSERT INTO users (fullname, email, phone, address, username, password) VALUES (?, ?, ?, ?, ?, ?)",
-                (fullname, email, phone, address, username, password),
+                "INSERT INTO users (fullname, email, phone, address, username, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (fullname, email, phone, address, username, password, "user"),
             )
             conn.commit()
             return redirect("/login")
@@ -128,8 +129,9 @@ def login():
         user = c.fetchone()
         if user:
             session["user"] = username
+            session["role"] = user["role"]
             session["cart"] = []
-            print(f"[LOGIN] Đăng nhập thành công với username='{username}'")
+            print(f"[LOGIN] Đăng nhập thành công với username='{username}', role='{user['role']}'")
             return redirect("/")
         else:
             print(f"[LOGIN] Đăng nhập thất bại với username='{username}'")
@@ -204,6 +206,7 @@ def product_detail(product_id):
             type_pay = "banking"
             created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+            # Lưu thông tin thanh toán
             c.execute(
                 """
                 INSERT INTO payment_methods (user_id, type_pay, card_name, card_number, expiry_date, ccv, created_at)
@@ -211,8 +214,19 @@ def product_detail(product_id):
                 """,
                 (user_id, type_pay, card_name, card_number, expiry_date, ccv, created_at),
             )
+
+            # Nếu có user đăng nhập thì lưu lịch sử mua hàng cho user đó
+            if user_id is not None:
+                c.execute(
+                    """
+                    INSERT INTO purchases (user_id, product_id, quantity, created_at)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (user_id, product_id, 1, created_at),
+                )
+
             conn.commit()
-            success = "Thanh toán thành công! Cảm ơn bạn đã mua hàng."
+            success = "Thanh toán thành công! Đơn hàng của bạn đã được ghi nhận."
 
     return render_template(
         "product_detail.html",
@@ -224,32 +238,252 @@ def product_detail(product_id):
 
 @app.route("/admin")
 def admin():
+    # Chỉ cho phép role admin
+    if session.get("role") != "admin":
+        return "URL không khả dụng - bạn không có quyền truy cập trang quản trị.", 403
+
     conn = get_db()
     c = conn.cursor()
     c.execute("SELECT * FROM sanpham")
     products = c.fetchall()
-    return render_template("admin.html", products=products)
+
+    # Lấy categories để hiện tên loại trong bảng nếu cần
+    c.execute("SELECT * FROM categories")
+    categories = {row["id"]: row["name"] for row in c.fetchall()}
+
+    return render_template("admin.html", products=products, categories=categories)
+
+
+@app.route("/admin/product/new", methods=["GET", "POST"])
+def admin_product_new():
+    if session.get("role") != "admin":
+        return "URL không khả dụng - bạn không có quyền truy cập trang quản trị.", 403
+    conn = get_db()
+    c = conn.cursor()
+
+    # Lấy danh mục cho dropdown
+    c.execute("SELECT * FROM categories")
+    categories = c.fetchall()
+
+    error = None
+    if request.method == "POST":
+        name = request.form.get("ten", "").strip()
+        price = request.form.get("gia", "").strip()
+        quantity = request.form.get("quantity", "").strip()
+        size = request.form.get("size", "").strip()
+        color = request.form.get("color", "").strip()
+        description = request.form.get("description", "").strip()
+        category_id = request.form.get("category_id", type=int)
+        product_type = request.form.get("product_type", "").strip()
+
+        if not name or not price:
+            error = "Vui lòng nhập ít nhất tên và giá sản phẩm."
+        else:
+            created_at = datetime.now().strftime("%Y-%m-%d")
+            c.execute(
+                """
+                INSERT INTO sanpham (ten, gia, quantity, size, color, description, category_id, product_type, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    name,
+                    int(price),
+                    int(quantity) if quantity else 0,
+                    size,
+                    color,
+                    description,
+                    category_id,
+                    product_type,
+                    created_at,
+                ),
+            )
+            conn.commit()
+            return redirect("/admin")
+
+    return render_template(
+        "admin_product_form.html",
+        mode="create",
+        error=error,
+        categories=categories,
+        product=None,
+    )
+
+
+@app.route("/admin/product/<int:product_id>/edit", methods=["GET", "POST"])
+def admin_product_edit(product_id):
+    if session.get("role") != "admin":
+        return "URL không khả dụng - bạn không có quyền truy cập trang quản trị.", 403
+    conn = get_db()
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM sanpham WHERE id=?", (product_id,))
+    product = c.fetchone()
+    if product is None:
+        return "Sản phẩm không tồn tại", 404
+
+    c.execute("SELECT * FROM categories")
+    categories = c.fetchall()
+
+    error = None
+    if request.method == "POST":
+        name = request.form.get("ten", "").strip()
+        price = request.form.get("gia", "").strip()
+        quantity = request.form.get("quantity", "").strip()
+        size = request.form.get("size", "").strip()
+        color = request.form.get("color", "").strip()
+        description = request.form.get("description", "").strip()
+        category_id = request.form.get("category_id", type=int)
+        product_type = request.form.get("product_type", "").strip()
+
+        if not name or not price:
+            error = "Vui lòng nhập ít nhất tên và giá sản phẩm."
+        else:
+            c.execute(
+                """
+                UPDATE sanpham
+                SET ten = ?, gia = ?, quantity = ?, size = ?, color = ?, description = ?, category_id = ?, product_type = ?
+                WHERE id = ?
+                """,
+                (
+                    name,
+                    int(price),
+                    int(quantity) if quantity else 0,
+                    size,
+                    color,
+                    description,
+                    category_id,
+                    product_type,
+                    product_id,
+                ),
+            )
+            conn.commit()
+            return redirect("/admin")
+
+    return render_template(
+        "admin_product_form.html",
+        mode="edit",
+        error=error,
+        categories=categories,
+        product=product,
+    )
+
+
+@app.route("/admin/product/<int:product_id>/delete", methods=["POST"])
+def admin_product_delete(product_id):
+    if session.get("role") != "admin":
+        return "URL không khả dụng - bạn không có quyền truy cập trang quản trị.", 403
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("DELETE FROM sanpham WHERE id=?", (product_id,))
+    conn.commit()
+    return redirect("/admin")
 
 @app.route("/profile")
 def profile():
     # Yêu cầu phải đăng nhập
     if "user" not in session:
         return redirect("/login")
-    username = session["user"]
-    return render_template("profile.html", username=username)
 
-@app.route("/settings")
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE username=?", (session["user"],))
+    user = c.fetchone()
+    if user is None:
+        return redirect("/logout")
+
+    # Lấy danh sách sản phẩm đã mua của user (nếu có)
+    c.execute(
+        """
+        SELECT p.id, p.ten, p.gia, pu.created_at
+        FROM purchases pu
+        JOIN sanpham p ON pu.product_id = p.id
+        WHERE pu.user_id = ?
+        ORDER BY pu.created_at DESC
+        """,
+        (user["id"],),
+    )
+    purchased_items = c.fetchall()
+
+    return render_template("profile.html", user=user, purchased_items=purchased_items)
+
+
+@app.route("/settings", methods=["GET", "POST"])
 def settings():
     # Yêu cầu phải đăng nhập
     if "user" not in session:
         return redirect("/login")
-    username = session["user"]
-    return render_template("settings.html", username=username)
+
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE username=?", (session["user"],))
+    user = c.fetchone()
+    if user is None:
+        return redirect("/logout")
+
+    profile_success = None
+    profile_error = None
+    password_success = None
+    password_error = None
+
+    if request.method == "POST":
+        action = request.form.get("action")
+
+        if action == "update_profile":
+            fullname = request.form.get("fullname", "").strip()
+            email = request.form.get("email", "").strip()
+            phone = request.form.get("phone", "").strip()
+            address = request.form.get("address", "").strip()
+
+            if not fullname or not email or not phone or not address:
+                profile_error = "Vui lòng điền đầy đủ thông tin cá nhân."
+            else:
+                c.execute(
+                    """
+                    UPDATE users
+                    SET fullname = ?, email = ?, phone = ?, address = ?
+                    WHERE id = ?
+                    """,
+                    (fullname, email, phone, address, user["id"]),
+                )
+                conn.commit()
+                profile_success = "Cập nhật thông tin cá nhân thành công."
+                # Cập nhật lại biến user để hiển thị dữ liệu mới
+                c.execute("SELECT * FROM users WHERE id=?", (user["id"],))
+                user = c.fetchone()
+
+        elif action == "change_password":
+            current_password = request.form.get("current_password", "")
+            new_password = request.form.get("new_password", "")
+            confirm_password = request.form.get("confirm_password", "")
+
+            if not current_password or not new_password or not confirm_password:
+                password_error = "Vui lòng điền đầy đủ thông tin mật khẩu."
+            elif current_password != user["password"]:
+                password_error = "Mật khẩu hiện tại không chính xác."
+            elif new_password != confirm_password:
+                password_error = "Mật khẩu mới và xác nhận mật khẩu không trùng khớp."
+            else:
+                c.execute(
+                    "UPDATE users SET password = ? WHERE id = ?",
+                    (new_password, user["id"]),
+                )
+                conn.commit()
+                password_success = "Đổi mật khẩu thành công."
+
+    return render_template(
+        "settings.html",
+        user=user,
+        profile_success=profile_success,
+        profile_error=profile_error,
+        password_success=password_success,
+        password_error=password_error,
+    )
 
 @app.route("/logout")
 def logout():
-    # Xóa thông tin đăng nhập và giỏ hàng rồi quay về trang chủ
+    # Xóa thông tin đăng nhập, quyền và giỏ hàng rồi quay về trang chủ
     session.pop("user", None)
+    session.pop("role", None)
     session.pop("cart", None)
     return redirect("/")
 
