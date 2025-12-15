@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="admin-header mb-4">
+    <h2 class="section-title">
+        <i class="fas fa-file-invoice me-2"></i>Chi tiết đơn hàng #{{ order['id'] }}
+    </h2>
+    <div class="section-divider"></div>
+</div>
+
+<div class="admin-container mb-4">
+    <p class="mb-1"><strong>Thời gian:</strong> {{ order['created_at'] }}</p>
+    <p class="mb-1"><strong>Trạng thái:</strong> {{ order['status'] }}</p>
+    <p class="mb-1"><strong>Tổng tiền:</strong> {{ order['total_amount']|int }} VNĐ</p>
+</div>
+
+<div class="admin-container">
+    {% if items %}
+    <div class="table-responsive">
+        <table class="table admin-table">
+            <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Tạm tính</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for it in items %}
+            <tr>
+                <td>
+                    <a href="/product/{{ it['product_id'] }}" class="text-decoration-none">
+                        {{ it['ten'] }}
+                    </a>
+                </td>
+                <td>{{ it['price']|int }} VNĐ</td>
+                <td>{{ it['quantity'] }}</td>
+                <td>{{ (it['price'] * it['quantity'])|int }} VNĐ</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">Đơn hàng không có sản phẩm nào.</p>
+    {% endif %}
+
+    <div class="mt-3">
+        {% if session.get('role') == 'admin' %}
+            <a href="/admin/orders" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách đơn (Admin)
+            </a>
+        {% else %}
+            <a href="/orders" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách đơn
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+

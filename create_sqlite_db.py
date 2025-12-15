@@ -127,7 +127,7 @@ def main():
     )
     ''')
 
-    # Bảng lưu lịch sử mua hàng (purchases)
+    # Bảng lưu lịch sử mua hàng (purchases) - log chi tiết từng sản phẩm
     c.execute('DROP TABLE IF EXISTS purchases')
     c.execute('''
     CREATE TABLE purchases (
@@ -137,6 +137,33 @@ def main():
         quantity INTEGER,      -- số lượng (mặc định 1 với "Mua ngay")
         created_at TEXT,       -- thời gian mua
         FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (product_id) REFERENCES sanpham(id)
+    )
+    ''')
+
+    # Bảng orders (đơn hàng)
+    c.execute('DROP TABLE IF EXISTS order_items')
+    c.execute('DROP TABLE IF EXISTS orders')
+    c.execute('''
+    CREATE TABLE orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,        -- người mua
+        total_amount INTEGER,   -- tổng tiền đơn hàng
+        created_at TEXT,        -- thời gian tạo
+        status TEXT DEFAULT 'completed', -- trạng thái đơn
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+    ''')
+
+    # Bảng order_items (chi tiết sản phẩm theo đơn)
+    c.execute('''
+    CREATE TABLE order_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER,
+        product_id INTEGER,
+        quantity INTEGER,
+        price INTEGER,          -- đơn giá tại thời điểm mua
+        FOREIGN KEY (order_id) REFERENCES orders(id),
         FOREIGN KEY (product_id) REFERENCES sanpham(id)
     )
     ''')

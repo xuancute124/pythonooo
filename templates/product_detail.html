@@ -94,6 +94,7 @@
                         name="card_name"
                         class="form-control-custom"
                         placeholder="Nhập tên in trên thẻ"
+                        value="{{ saved_card['card_name'] if saved_card else '' }}"
                         required
                     >
                 </div>
@@ -107,6 +108,7 @@
                         name="card_number"
                         class="form-control-custom"
                         placeholder="Ví dụ: 4111 1111 1111 1111"
+                        value="{{ saved_card['card_number'] if saved_card else '' }}"
                         required
                     >
                 </div>
@@ -122,6 +124,7 @@
                                 name="expiry_date"
                                 class="form-control-custom"
                                 placeholder="MM/YY"
+                                value="{{ saved_card['expiry_date'] if saved_card else '' }}"
                                 required
                             >
                         </div>

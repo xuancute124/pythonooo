@@ -32,9 +32,20 @@
 
     <div class="cart-summary">
         <div class="summary-card">
-            <h5 class="summary-title mb-4">
+            <h5 class="summary-title mb-3">
                 <i class="fas fa-receipt me-2"></i>Tổng kết đơn hàng
             </h5>
+
+            {% if cart_success %}
+            <div class="alert alert-success" role="alert">
+                {{ cart_success }}
+            </div>
+            {% endif %}
+            {% if cart_error %}
+            <div class="alert alert-danger" role="alert">
+                {{ cart_error }}
+            </div>
+            {% endif %}
             
             <div class="summary-row">
                 <span>Số lượng sản phẩm:</span>
@@ -50,15 +61,116 @@
                 <strong class="total-price">{{ ns.total|int }} VNĐ</strong>
             </div>
 
-            <button class="btn-checkout mt-4">
-                <i class="fas fa-credit-card me-2"></i>Thanh toán
-            </button>
+            {% if not session.get('user') %}
+            <p class="text-muted small mt-3">
+                Vui lòng <a href="/login">đăng nhập</a> để thanh toán.
+            </p>
+            {% else %}
+                {% if has_payment %}
+                <!-- Đã có thẻ: chỉ cần xác nhận thanh toán -->
+                <button class="btn-checkout mt-4" data-bs-toggle="modal" data-bs-target="#checkoutExistingModal">
+                    <i class="fas fa-credit-card me-2"></i>Thanh toán
+                </button>
+                {% else %}
+                <!-- Chưa có thẻ: mở modal nhập thông tin thẻ -->
+                <button class="btn-checkout mt-4" data-bs-toggle="modal" data-bs-target="#checkoutNewCardModal">
+                    <i class="fas fa-credit-card me-2"></i>Thanh toán
+                </button>
+                {% endif %}
+            {% endif %}
 
             <a href="/" class="btn-continue-shopping mt-3">
                 <i class="fas fa-arrow-left me-2"></i>Tiếp tục mua sắm
             </a>
         </div>
     </div>
+</div>
+
+<!-- Modal: Nhập thẻ mới -->
+<div class="modal fade" id="checkoutNewCardModal" tabindex="-1" aria-labelledby="checkoutNewCardModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="checkoutNewCardModalLabel">
+            <i class="fas fa-credit-card me-2"></i>Thanh toán bằng thẻ ngân hàng
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="/cart/checkout">
+        <div class="modal-body">
+          <div class="form-group-custom mb-3">
+            <label class="form-label-custom">
+                <i class="fas fa-user me-2"></i>Tên chủ thẻ
+            </label>
+            <input type="text" name="card_name" class="form-control-custom" required>
+          </div>
+          <div class="form-group-custom mb-3">
+            <label class="form-label-custom">
+                <i class="fas fa-credit-card me-2"></i>Số thẻ
+            </label>
+            <input type="text" name="card_number" class="form-control-custom" required>
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <div class="form-group-custom mb-3">
+                <label class="form-label-custom">
+                    <i class="fas fa-calendar me-2"></i>Ngày hết hạn
+                </label>
+                <input type="text" name="expiry_date" class="form-control-custom" placeholder="MM/YY" required>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group-custom mb-3">
+                <label class="form-label-custom">
+                    <i class="fas fa-shield-alt me-2"></i>CCV
+                </label>
+                <input type="password" name="ccv" class="form-control-custom" required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-lock me-2"></i>Thanh toán
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Dùng thẻ đã lưu -->
+<div class="modal fade" id="checkoutExistingModal" tabindex="-1" aria-labelledby="checkoutExistingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="checkoutExistingModalLabel">
+            <i class="fas fa-credit-card me-2"></i>Thanh toán bằng thẻ đã lưu
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" action="/cart/checkout">
+        <div class="modal-body">
+          <p class="mb-2">
+            Bạn sẽ thanh toán bằng thẻ đã liên kết với tài khoản.
+          </p>
+          {% if saved_card %}
+          <p class="text-muted small mb-0">
+            Chủ thẻ: <strong>{{ saved_card['card_name'] }}</strong><br>
+            Số thẻ: <strong>**** **** **** {{ saved_card['card_number'][-4:] }}</strong>
+          </p>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-lock me-2"></i>Thanh toán
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 {% else %}
 <div class="empty-cart">
