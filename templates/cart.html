@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Giỏ hàng</h3>
+{% if items %}
+<ul class="list-group">
+{% for it in items %}
+    <li class="list-group-item">{{ it[1] }} - {{ it[2] }} VNĐ</li>
+{% endfor %}
+</ul>
+{% else %}
+<p>Giỏ hàng trống</p>
+{% endif %}
+{% endblock %}
+

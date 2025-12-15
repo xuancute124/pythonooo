@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Đăng nhập</h3>
+<form method="post">
+    <input name="username" class="form-control mb-2" placeholder="Tên đăng nhập">
+    <input name="password" type="password" class="form-control mb-2" placeholder="Mật khẩu">
+    <button class="btn btn-success">Đăng nhập</button>
+</form>
+<a href="/register">Chưa có tài khoản?</a>
+{% endblock %}
+

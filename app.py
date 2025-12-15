@@ -1,11 +1,25 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, g, current_app
 import sqlite3
+import os
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 
+# Use a separate, explicit sqlite database filename to avoid conflicts with a non-SQLite file.
+app.config['DATABASE'] = os.path.join(os.path.dirname(__file__), 'database_sqlite.db')
+
 def get_db():
-    return sqlite3.connect("database.db")
+    if 'db' not in g:
+        g.db = sqlite3.connect(current_app.config['DATABASE'])
+        g.db.row_factory = sqlite3.Row
+    return g.db
+
+def close_db(e=None):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
+
+app.teardown_appcontext(close_db)
 
 @app.route("/")
 def index():
@@ -13,7 +27,6 @@ def index():
     c = conn.cursor()
     c.execute("SELECT * FROM sanpham")
     products = c.fetchall()
-    conn.close()
     return render_template("index.html", products=products)
 
 @app.route("/register", methods=["GET", "POST"])
@@ -25,7 +38,6 @@ def register():
         c = conn.cursor()
         c.execute("INSERT INTO users VALUES (NULL, ?, ?)", (username, password))
         conn.commit()
-        conn.close()
         return redirect("/login")
     return render_template("register.html")
 
@@ -38,7 +50,6 @@ def login():
         c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
         user = c.fetchone()
-        conn.close()
         if user:
             session["user"] = username
             session["cart"] = []
@@ -47,6 +58,7 @@ def login():
 
 @app.route("/add/<int:id>")
 def add_cart(id):
+    session.setdefault("cart", [])
     session["cart"].append(id)
     return redirect("/cart")
 
@@ -58,7 +70,6 @@ def cart():
     for pid in session.get("cart", []):
         c.execute("SELECT * FROM sanpham WHERE id=?", (pid,))
         items.append(c.fetchone())
-    conn.close()
     return render_template("cart.html", items=items)
 
 @app.route("/admin")
@@ -67,7 +78,6 @@ def admin():
     c = conn.cursor()
     c.execute("SELECT * FROM sanpham")
     products = c.fetchall()
-    conn.close()
     return render_template("admin.html", products=products)
 
 if __name__ == "__main__":

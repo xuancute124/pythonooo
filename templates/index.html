@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>👕 Cửa hàng quần áo</h2>
+
+<div class="row">
+{% for p in products %}
+    <div class="col-md-3 card p-3 m-2">
+        <h5>{{ p[1] }}</h5>
+        <p>{{ p[2] }} VNĐ</p>
+        <a href="/add/{{ p[0] }}" class="btn btn-primary">Thêm giỏ hàng</a>
+    </div>
+{% endfor %}
+</div>
+
+<a href="/cart">🛒 Xem giỏ hàng</a> |
+<a href="/login">Đăng nhập</a>
+{% endblock %}
+
