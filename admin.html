@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Trang quản trị</h3>
+
+<table class="table table-bordered">
+<tr>
+    <th>ID</th>
+    <th>Tên</th>
+    <th>Giá</th>
+</tr>
+{% for p in products %}
+<tr>
+    <td>{{ p[0] }}</td>
+    <td>{{ p[1] }}</td>
+    <td>{{ p[2] }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

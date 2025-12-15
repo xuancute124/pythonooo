@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <h1>Bộ sưu tập mới</h1>
+        <p>Thời trang basic, giá hợp lý, giao nhanh toàn quốc.</p>
+    </div>
+</section>
+
+<section class="products">
+    {% for product in products %}
+        <article class="product-card">
+            <img src="{{ product.thumbnail }}" alt="{{ product.name }}">
+            <div class="product-body">
+                <h3>{{ product.name }}</h3>
+                <p class="price">{{ "{:,.0f}".format(product.price) }} đ</p>
+                <form method="post" action="{{ url_for('add_to_cart', product_id=product.id) }}">
+                    <label>
+                        Số lượng
+                        <input type="number" name="quantity" min="1" value="1">
+                    </label>
+                    <button type="submit">Thêm vào giỏ</button>
+                </form>
+            </div>
+        </article>
+    {% endfor %}
+</section>
+{% endblock %}
+

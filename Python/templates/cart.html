@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Giỏ hàng</h1>
+
+{% if items %}
+<form method="post" action="{{ url_for('update_cart') }}">
+    <table class="cart-table">
+        <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Đơn giá</th>
+            <th>Số lượng</th>
+            <th>Thành tiền</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ "{:,.0f}".format(item.product.price) }} đ</td>
+                <td>
+                    <input type="number" name="quantity_{{ item.product.id }}" min="0" value="{{ item.quantity }}">
+                </td>
+                <td>{{ "{:,.0f}".format(item.line_total) }} đ</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="cart-actions">
+        <p class="total">Tổng: {{ "{:,.0f}".format(total) }} đ</p>
+        <div class="buttons">
+            <button type="submit">Cập nhật</button>
+        </div>
+    </div>
+</form>
+<form method="post" action="{{ url_for('clear_cart') }}">
+    <button type="submit" class="ghost">Xóa giỏ hàng</button>
+</form>
+{% else %}
+    <p>Giỏ hàng trống. Thêm sản phẩm từ trang chủ nhé!</p>
+{% endif %}
+{% endblock %}
+

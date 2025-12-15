@@ -1,0 +1,15 @@
+# Minimal requirements inferred from index.py
+SpeechRecognition
+wikipedia
+gTTS
+youtube-search
+selenium
+webdriver-manager
+playsound==1.2.2
+requests
+pyaudio
+python-dotenv
+Flask
+
+# Note: On Linux the 'playsound' package may behave differently; system packages like ffmpeg are
+# installed in the Docker image to help with audio processing.
