@@ -139,7 +139,7 @@
     {% for p in products %}
     <div class="col-lg-3 col-md-4 col-sm-6">
         <div class="product-card">
-            <a href="/product/{{ p[0] }}" class="text-decoration-none text-reset">
+            <a href="/product/{{ p['id'] }}" class="text-decoration-none text-reset">
                 <div class="product-image-wrapper">
                     <div class="product-image-placeholder">
                         <i class="fas fa-tshirt"></i>
@@ -149,12 +149,12 @@
             </a>
             <div class="product-body">
                 <h5 class="product-title">
-                    <a href="/product/{{ p[0] }}" class="text-decoration-none text-reset">
-                        {{ p[1] }}
+                    <a href="/product/{{ p['id'] }}" class="text-decoration-none text-reset">
+                        {{ p['ten'] }}
                     </a>
                 </h5>
                 <div class="product-price-wrapper">
-                    <span class="product-price">{{ p[2]|int }} VNĐ</span>
+                    <span class="product-price">{{ p['gia']|int }} VNĐ</span>
                 </div>
                 <div class="product-meta-row d-flex justify-content-between align-items-center mb-3">
                     <span class="badge bg-light text-muted px-2 py-1">
@@ -165,10 +165,10 @@
                     </span>
                 </div>
                 <div class="d-flex flex-column gap-2">
-                    <a href="/add/{{ p[0] }}" class="btn-add-cart text-center">
+                    <a href="/add/{{ p['id'] }}" class="btn-add-cart text-center">
                         <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
                     </a>
-                    <a href="/product/{{ p[0] }}" class="btn btn-outline-primary btn-sm">
+                    <a href="/product/{{ p['id'] }}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-eye me-1"></i>Xem chi tiết
                     </a>
                 </div>
@@ -177,6 +177,35 @@
     </div>
     {% endfor %}
 </div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<nav class="mt-4" aria-label="Pagination">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+            <a class="page-link"
+               href="?page={{ page-1 }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% for r in selected_price_ranges %}&price={{ r }}{% endfor %}"
+               tabindex="-1">
+                «
+            </a>
+        </li>
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link"
+               href="?page={{ p }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% for r in selected_price_ranges %}&price={{ r }}{% endfor %}">
+                {{ p }}
+            </a>
+        </li>
+        {% endfor %}
+        <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+            <a class="page-link"
+               href="?page={{ page+1 }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% for r in selected_price_ranges %}&price={{ r }}{% endfor %}">
+                »
+            </a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
 {% else %}
 <div class="empty-state">
     <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>

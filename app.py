@@ -26,6 +26,11 @@ app.teardown_appcontext(close_db)
 def index():
     conn = get_db()
     c = conn.cursor()
+    # Phân trang
+    page = request.args.get("page", type=int, default=1)
+    if page < 1:
+        page = 1
+    per_page = 8
     # Lọc theo category nếu có tham số ?category=
     selected_category = request.args.get("category", type=int)
 
@@ -62,11 +67,25 @@ def index():
     if price_conditions:
         where_clauses.append("(" + " OR ".join(price_conditions) + ")")
 
-    query = "SELECT * FROM sanpham"
+    base_query = "FROM sanpham"
+    where_sql = ""
     if where_clauses:
-        query += " WHERE " + " AND ".join(where_clauses)
+        where_sql = " WHERE " + " AND ".join(where_clauses)
 
-    c.execute(query, params)
+    # Đếm tổng số sản phẩm để tính số trang
+    count_query = "SELECT COUNT(*) " + base_query + where_sql
+    c.execute(count_query, params)
+    total_products = c.fetchone()[0]
+
+    total_pages = (total_products + per_page - 1) // per_page if total_products > 0 else 1
+    if page > total_pages:
+        page = total_pages
+
+    offset = (page - 1) * per_page
+
+    # Lấy danh sách sản phẩm theo trang
+    data_query = "SELECT * " + base_query + where_sql + " LIMIT ? OFFSET ?"
+    c.execute(data_query, params + [per_page, offset])
     products = c.fetchall()
 
     # Lấy danh sách category để hiển thị bộ lọc
@@ -79,6 +98,8 @@ def index():
         categories=categories,
         selected_category=selected_category,
         selected_price_ranges=selected_price_ranges,
+        page=page,
+        total_pages=total_pages,
     )
 
 @app.route("/register", methods=["GET", "POST"])
